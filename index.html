@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEATMAKER PORTAL | Chinese Style Elevator Beat Store</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background-color: #110c08; 
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(217, 155, 60, 0.12) 0%, transparent 65%),
+                url('https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #ebdccc; 
+            font-family: system-ui, -apple-system, sans-serif; 
+        }
+
+        .chinese-panel {
+            background: linear-gradient(135deg, rgba(28, 22, 15, 0.96) 0%, rgba(15, 11, 7, 0.96) 100%);
+            border: 1px solid rgba(212, 143, 49, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.95), 0 0 20px rgba(212, 143, 49, 0.2);
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        .chinese-panel::before {
+            content: "";
+            position: absolute;
+            inset: 6px;
+            border: 1px dashed rgba(212, 143, 49, 0.35);
+            pointer-events: none;
+            border-radius: 12px;
+            box-shadow: inset 0 0 14px rgba(212, 143, 49, 0.1);
+            z-index: 2;
+        }
+
+        body.disable-effects .panel-ripple-canvas {
+            display: none !important;
+        }
+        body.disable-effects .glow-icon {
+            filter: none !important;
+        }
+        body.disable-effects .mist-badge {
+            box-shadow: none !important;
+        }
+        
+        .seal-stamp {
+            border: 2px solid #a11d1d;
+            color: #dc2626;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            font-size: 16px;
+            box-shadow: 0 0 10px rgba(161, 29, 29, 0.35);
+            background-color: rgba(20, 14, 10, 0.8);
+            flex-shrink: 0;
+        }
+
+        .amber-stamp {
+            border: 1px solid rgba(212, 143, 49, 0.7);
+            color: #fef08a;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            font-size: 14px;
+            box-shadow: 0 0 10px rgba(212, 143, 49, 0.25);
+            background-color: rgba(20, 14, 10, 0.85);
+            flex-shrink: 0;
+        }
+
+        .seal-stamp-circle {
+            border: 2px solid #a11d1d;
+            color: #dc2626;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            font-size: 16px;
+            box-shadow: 0 0 12px rgba(161, 29, 29, 0.4), inset 0 0 6px rgba(161, 29, 29, 0.2);
+            flex-shrink: 0;
+            background-color: rgba(18, 12, 8, 0.85);
+        }
+
+        .scroll-tag {
+            position: relative;
+            background: linear-gradient(90deg, #261d15 0%, #33271c 50%, #261d15 100%);
+            border: 1px solid rgba(212, 143, 49, 0.5);
+            color: #fef08a;
+            padding: 8px 16px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.7), inset 0 0 6px rgba(212, 143, 49, 0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .scroll-tag::before, .scroll-tag::after {
+            content: "";
+            position: absolute;
+            top: -2px;
+            bottom: -2px;
+            width: 5px;
+            background: linear-gradient(to bottom, #fde047, #ca8a04, #713f12);
+            border-radius: 2px;
+            box-shadow: 0 0 5px rgba(234, 179, 8, 0.6);
+        }
+        .scroll-tag::before { left: -5px; }
+        .scroll-tag::after { right: -5px; }
+
+        .scroll-tag:hover {
+            border-color: rgba(234, 179, 8, 0.9);
+            box-shadow: 0 0 12px rgba(234, 179, 8, 0.4), inset 0 0 8px rgba(234, 179, 8, 0.3);
+        }
+
+        .scroll-tag.active {
+            background: linear-gradient(90deg, #b45309 0%, #d97706 50%, #b45309 100%);
+            color: #ffffff;
+            border-color: #fef08a;
+            box-shadow: 0 0 16px rgba(234, 179, 8, 0.75), inset 0 0 8px rgba(255, 255, 255, 0.4);
+        }
+
+        .glow-icon {
+            filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.85)) drop-shadow(0 0 14px rgba(212, 143, 49, 0.6));
+        }
+
+        @keyframes scrollUnroll {
+            0% { transform: scaleX(0.85) scaleY(0.92); filter: brightness(1.4); }
+            50% { transform: scaleX(1.06) scaleY(1.03); filter: brightness(1.2); }
+            100% { transform: scaleX(1) scaleY(1); filter: brightness(1); }
+        }
+        .scroll-rolling {
+            animation: scrollUnroll 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .elevator-doors {
+            transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+            -webkit-transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            z-index: 30;
+        }
+        .door-left {
+            left: 0;
+            transform: translateX(0);
+            -webkit-transform: translateX(0);
+            background-color: #1c1510;
+            background-image: linear-gradient(135deg, #261d15 0%, #120d0a 100%);
+            background-size: cover;
+            background-position: left center;
+            border-right: 2px solid rgba(212, 143, 49, 0.75);
+            box-shadow: 6px 0 18px rgba(0,0,0,0.85);
+        }
+        .door-right {
+            right: 0;
+            transform: translateX(0);
+            -webkit-transform: translateX(0);
+            background-color: #1c1510;
+            background-image: linear-gradient(135deg, #120d0a 100%, #261d15 100%);
+            background-size: cover;
+            background-position: right center;
+            border-left: 2px solid rgba(212, 143, 49, 0.75);
+            box-shadow: -6px 0 18px rgba(0,0,0,0.85);
+        }
+
+        .elevator-doors::after {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border: 1px solid rgba(212, 143, 49, 0.35);
+            border-radius: 4px;
+            box-shadow: inset 0 0 20px rgba(212, 143, 49, 0.12), 0 0 10px rgba(212, 143, 49, 0.1);
+            pointer-events: none;
+        }
+        .door-left::after { border-right: 2px dashed rgba(212, 143, 49, 0.55); }
+        .door-right::after { border-left: 2px dashed rgba(212, 143, 49, 0.55); }
+
+        .door-open .door-left {
+            transform: translateX(-100%);
+            -webkit-transform: translateX(-100%);
+        }
+        .door-open .door-right {
+            transform: translateX(100%);
+            -webkit-transform: translateX(100%);
+        }
+
+        #mystical-mist {
+            position: absolute;
+            inset: 0;
+            z-index: 35;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 2rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+            background: radial-gradient(circle at 50% 10%, rgba(234, 208, 142, 0.28) 0%, rgba(194, 138, 43, 0.12) 45%, rgba(15, 11, 7, 0.88) 85%);
+            backdrop-filter: blur(3px);
+        }
+        #mystical-mist.active {
+            opacity: 1;
+        }
+        .mist-badge {
+            color: #fef08a;
+            font-size: 0.9rem;
+            font-weight: bold;
+            letter-spacing: 0.4em;
+            padding: 10px 24px;
+            background: rgba(18, 13, 9, 0.92);
+            border: 1px solid rgba(212, 143, 49, 0.75);
+            border-radius: 9999px;
+            box-shadow: 0 0 25px rgba(212, 143, 49, 0.6), inset 0 0 10px rgba(234, 179, 8, 0.3);
+            transform: scale(0.85);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #mystical-mist.active .mist-badge {
+            transform: scale(1);
+        }
+
+        .corner-carving {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            z-index: 36;
+            pointer-events: none;
+        }
+        .corner-carving::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid rgba(212, 143, 49, 0.65);
+            box-shadow: 0 0 15px rgba(212, 143, 49, 0.4), inset 0 0 10px rgba(212, 143, 49, 0.25);
+        }
+        .corner-carving::after {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(234, 179, 8, 0.85);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.7);
+        }
+        .corner-tl { top: 12px; left: 12px; }
+        .corner-tl::before { border-right: none; border-bottom: none; border-top-left-radius: 12px; }
+        .corner-tl::after { top: 6px; left: 6px; }
+
+        .corner-tr { top: 12px; right: 12px; }
+        .corner-tr::before { border-left: none; border-bottom: none; border-top-right-radius: 12px; }
+        .corner-tr::after { top: 6px; right: 6px; }
+
+        .corner-bl { bottom: 12px; left: 12px; }
+        .corner-bl::before { border-right: none; border-top: none; border-bottom-left-radius: 12px; }
+        .corner-bl::after { bottom: 6px; left: 6px; }
+
+        .corner-br { bottom: 12px; right: 12px; }
+        .corner-br::before { border-left: none; border-top: none; border-bottom-right-radius: 12px; }
+        .corner-br::after { bottom: 6px; right: 6px; }
+
+        /* 門把位置改為正中央單個 */
+        .handles-container {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+        }
+        .door-left .handles-container { right: 20px; }
+        .door-right .handles-container { left: 20px; }
+
+        .ring-handle-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            height: 60px;
+        }
+        .handle-base {
+            width: 26px;
+            height: 26px;
+            background: radial-gradient(circle at 30% 30%, #fde047 0%, #ca8a04 50%, #713f12 100%);
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.85), 0 0 15px rgba(234, 179, 8, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.35);
+            border: 1px solid rgba(254, 240, 138, 0.75);
+            position: relative;
+            z-index: 2;
+        }
+        .handle-ring {
+            width: 38px;
+            height: 38px;
+            border: 4px solid #d97706;
+            border-radius: 50%;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.75), 0 0 15px rgba(234, 179, 8, 0.6), inset 0 0 8px rgba(234, 179, 8, 0.4);
+            position: absolute;
+            top: 12px;
+            z-index: 1;
+            background: transparent;
+            border-top-color: #facc15;
+            border-bottom-color: #92400e;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 md:p-8">
+
+    <button id="effect-toggle-btn" onclick="toggleEffects()" class="fixed left-4 top-44 z-50 scroll-tag text-xs sm:text-sm py-2 px-3 shadow-xl cursor-pointer">
+        ⚡ Effects: ON (特效開啟)
+    </button>
+
+    <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 my-auto items-stretch">
+        
+        <!-- 左側面板 (整合左側社交按鈕與 IG LOGO) -->
+        <aside id="panel-left" class="w-full lg:col-span-4 chinese-panel p-5 sm:p-6 flex flex-col justify-between">
+            <canvas class="panel-ripple-canvas absolute inset-0 w-full h-full pointer-events-auto z-0 opacity-85 rounded-2xl"></canvas>
+
+            <div class="space-y-5 relative z-10">
+                <div class="flex items-center justify-between border-b border-amber-900/40 pb-4">
+                    <div class="flex items-center gap-4">
+                        <div class="seal-stamp">音</div>
+                        <div>
+                            <h1 class="text-lg sm:text-xl font-black tracking-widest text-amber-400">Music Hall (音律殿堂)</h1>
+                            <p class="text-xs sm:text-sm text-amber-100/90 leading-relaxed mt-1">
+                                Specialized in Epic, Funk, Oriental, Trailer Music, and trendy KPOP top-tier beats.
+                                <br><span class="text-amber-500/90 text-[11px] sm:text-xs">(專注於 Epic、Funk、東方風、預告片音樂與 KPOP 伴奏。)</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="nav-tab-container" class="pt-1">
+                    <button onclick="switchLeftPage('styles')" class="scroll-tag text-xs sm:text-sm w-full flex items-center justify-between py-2.5 px-3.5 text-center">
+                        <div class="flex items-center gap-2.5 text-left">
+                            <span class="glow-icon text-xl">🐉</span>
+                            <div>
+                                <div class="font-bold">Music Style (Next Page)</div>
+                                <div class="text-[11px] text-amber-200/90 font-normal">音樂風格介紹 (下一頁)</div>
+                            </div>
+                        </div>
+                        <span class="text-base font-bold">➔</span>
+                    </button>
+                </div>
+
+                <div id="page-services" class="space-y-3">
+                    <div class="space-y-3 pt-1">
+                        <div class="bg-black/55 border border-amber-900/50 p-3.5 rounded-[1.5rem] flex items-start gap-3 shadow-[inset_0_0_15px_rgba(212,143,49,0.06)] hover:border-amber-500/60 transition duration-300">
+                            <div class="seal-stamp-circle mt-0.5 text-amber-400 border-amber-600 !w-8 !h-8 !text-sm">權</div>
+                            <div class="space-y-1">
+                                <h3 class="text-sm font-bold text-amber-400 tracking-wide">
+                                    Official Licensing <span class="text-xs font-normal text-amber-500/85">(官方合約授權)</span>
+                                </h3>
+                                <p class="text-xs text-amber-100/90 leading-relaxed">
+                                    Full commercial licensing protection ensuring legal compliance.
+                                    <br><span class="text-amber-600/90 text-[11px]">(提供完整商業授權保障，確保發行與商演合規。)</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-black/55 border border-amber-900/50 p-3.5 rounded-[1.5rem] flex items-start gap-3 shadow-[inset_0_0_15px_rgba(212,143,49,0.06)] hover:border-cyan-500/60 transition duration-300">
+                            <div class="seal-stamp-circle mt-0.5 text-cyan-400 border-cyan-600 !w-8 !h-8 !text-sm shadow-[0_0_12px_rgba(6,182,212,0.4)]">真</div>
+                            <div class="space-y-1">
+                                <h3 class="text-sm font-bold text-cyan-400 tracking-wide">
+                                    Non-AI Production <span class="text-xs font-normal text-cyan-500/85">(非AI原創製作)</span>
+                                </h3>
+                                <p class="text-xs text-amber-100/90 leading-relaxed">
+                                    Crafted through genuine human composition, ensuring absolute originality.
+                                    <br><span class="text-cyan-600/90 text-[11px]">(堅持真人職人專業編曲，賦予音樂獨特靈魂。)</span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-black/55 border border-amber-900/50 p-3.5 rounded-[1.5rem] flex items-start gap-3 shadow-[inset_0_0_15px_rgba(212,143,49,0.06)] hover:border-emerald-500/60 transition duration-300">
+                            <div class="seal-stamp-circle mt-0.5 text-emerald-400 border-emerald-600 !w-8 !h-8 !text-sm shadow-[0_0_12px_rgba(16,185,129,0.4)]">軌</div>
+                            <div class="space-y-1">
+                                <h3 class="text-sm font-bold text-emerald-400 tracking-wide">
+                                    Studio-Quality Stems <span class="text-xs font-normal text-emerald-500/85">(錄音室級分軌)</span>
+                                </h3>
+                                <p class="text-xs text-amber-100/90 leading-relaxed">
+                                    Includes 24-bit pristine WAV stems meeting professional standards.
+                                    <br><span class="text-emerald-600/90 text-[11px]">(解鎖即含 24-bit 高音質 WAV 分軌，方便後期二次創作。)</span>
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="page-styles" class="space-y-4 hidden">
+                    <div class="flex items-center justify-between pb-2 border-b border-amber-900/30">
+                        <button onclick="switchLeftPage('services')" class="scroll-tag text-xs">
+                            ⬅ Back / 返回上一頁
+                        </button>
+                    </div>
+
+                    <div class="space-y-3 pt-1">
+                        <div class="bg-black/55 border border-amber-900/50 p-3.5 rounded-[1.5rem] space-y-2">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-bold text-amber-400">Oriental Instruments <span class="text-xs text-amber-500/90 font-medium">(東方風配器)</span></h3>
+                                <div class="amber-stamp text-xs !w-6 !h-6">東</div>
+                            </div>
+                            <p class="text-xs text-amber-100/90 leading-relaxed">
+                                Featuring traditional Eastern string and wind instruments blending cinematic Oriental allure.
+                                <br><span class="text-amber-500/90 text-[11px]">(運用東方傳統樂器，塑造極具畫面感的神秘意境。)</span>
+                            </p>
+                        </div>
+
+                        <div class="bg-black/55 border border-amber-900/50 p-3.5 rounded-[1.5rem] space-y-2">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-bold text-amber-400">Epic Orchestral Elements <span class="text-xs text-amber-500/90 font-medium">(Epic 史詩)</span></h3>
+                                <div class="amber-stamp text-xs !w-6 !h-6">史</div>
+                            </div>
+                            <p class="text-xs text-amber-100/90 leading-relaxed">
+                                Combining Western orchestral instruments with cinematic sound design for grand scale.
+                                <br><span class="text-amber-500/90 text-[11px]">(結合交響樂與電影級聲效，建構宏偉聽覺格局。)</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 左側社交連結：包含 IG LOGO 按鈕與 YouTube 按鈕 -->
+            <div class="pt-4 border-t border-amber-900/40 mt-4 relative z-10 space-y-2.5">
+                <div class="flex items-center justify-center gap-2.5">
+                    <a href="https://youtube.com" target="_blank" class="scroll-tag text-xs py-1.5 px-3 flex items-center gap-1.5 hover:scale-105 transition">
+                        <svg class="w-4 h-4 text-red-500 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        <span>YouTube</span>
+                    </a>
+                    <a href="https://instagram.com" target="_blank" class="scroll-tag text-xs py-1.5 px-3 flex items-center gap-1.5 hover:scale-105 transition">
+                        <svg class="w-4 h-4 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        <span>Instagram</span>
+                    </a>
+                </div>
+                <div class="text-center text-[11px] text-amber-600/70">
+                    Music Hall Portal System v3.10
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右側面板 -->
+        <section class="w-full lg:col-span-8 space-y-5 flex flex-col justify-between">
+            
+            <div id="panel-top" class="chinese-panel p-4 sm:p-5 space-y-4">
+                <canvas class="panel-ripple-canvas absolute inset-0 w-full h-full pointer-events-auto z-0 opacity-85 rounded-2xl"></canvas>
+
+                <div class="relative z-10 space-y-4">
+                    <h2 class="text-xs font-bold text-amber-400 tracking-wider">Beat Collection (典藏音軌列品)</h2>
+                    
+                    <div class="space-y-1.5 pt-1 border-t border-amber-900/40">
+                        <p class="text-[11px] font-bold text-amber-500/90 tracking-wider">Music Genre Tags (風格標籤)：</p>
+                        <div id="genre-filter-container" class="flex flex-wrap gap-2 py-0.5"></div>
+                    </div>
+
+                    <div class="space-y-1.5 pt-2 border-t border-amber-900/40">
+                        <p class="text-[11px] font-bold text-amber-500/90 tracking-wider">Sort Order (時間排序)：</p>
+                        <div id="sort-filter-container" class="flex flex-wrap gap-2">
+                            <button onclick="handleSortClick('newest')" data-sort="newest" class="sort-btn px-3 py-1 rounded-lg text-xs font-bold bg-amber-600 text-white transition border border-amber-500 shadow cursor-pointer">
+                                🕒 最新到最舊 (Newest First)
+                            </button>
+                            <button onclick="handleSortClick('oldest')" data-sort="oldest" class="sort-btn px-3 py-1 rounded-lg text-xs font-bold bg-amber-950/70 text-amber-200 hover:bg-amber-600 hover:text-white transition border border-amber-800/70 shadow cursor-pointer">
+                                ⏳ 最舊到最新 (Oldest First)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商品容器 -->
+            <div id="panel-elevator" class="relative chinese-panel p-4 sm:p-5 overflow-hidden min-h-[380px] flex flex-col justify-between flex-grow">
+                <canvas class="panel-ripple-canvas absolute inset-0 w-full h-full pointer-events-auto z-0 opacity-85 rounded-2xl"></canvas>
+
+                <div id="beat-list-view" class="space-y-4 relative z-10">
+                    <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4" id="beat-grid"></div>
+
+                    <div id="pagination-bar" class="flex items-center justify-center gap-2 pt-3 border-t border-amber-900/40">
+                        <button onclick="changePage('prev')" class="scroll-tag text-xs px-2.5 py-1">⬅</button>
+                        <div id="page-numbers" class="flex gap-2"></div>
+                        <button onclick="changePage('next')" class="scroll-tag text-xs px-2.5 py-1">➔</button>
+                    </div>
+                </div>
+
+                <div id="beat-detail-view" class="hidden space-y-4 relative z-10">
+                    <button onclick="backToBeatList()" class="scroll-tag text-xs">
+                        ⬅ Back to Collection / 返回典藏列表
+                    </button>
+                    <div id="detail-content" class="bg-black/75 border border-amber-900/60 p-5 rounded-2xl space-y-4"></div>
+                </div>
+
+                <div id="mystical-mist">
+                    <div class="mist-badge">✨ loading · 讀取中 ✨</div>
+                </div>
+
+                <!-- 電梯門：門把調整為正中央單個門把 -->
+                <div id="elevator-doors-wrapper" class="absolute inset-0 z-30 pointer-events-none">
+                    <div class="door-left elevator-doors">
+                        <div class="corner-carving corner-tl"></div>
+                        <div class="corner-carving corner-tr"></div>
+                        <div class="corner-carving corner-bl"></div>
+                        <div class="corner-carving corner-br"></div>
+                        <div class="handles-container">
+                            <div class="ring-handle-wrapper"><div class="handle-base"></div><div class="handle-ring"></div></div>
+                        </div>
+                    </div>
+                    <div class="door-right elevator-doors">
+                        <div class="corner-carving corner-tl"></div>
+                        <div class="corner-carving corner-tr"></div>
+                        <div class="corner-carving corner-bl"></div>
+                        <div class="corner-carving corner-br"></div>
+                        <div class="handles-container">
+                            <div class="ring-handle-wrapper"><div class="handle-base"></div><div class="handle-ring"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto w-full text-center py-4 text-xs text-amber-700/80 border-t border-amber-900/30 mt-6 px-2">
+        <p>© 2026 Your Name Beats. All Rights Reserved. Powered by GitHub Pages.</p>
+    </footer>
+
+    <script>
+        const beatsData = [
+            { id: 1, title: "NewJeans Style - 'Cyber Dive'", genres: ["KPOP", "Funk"], bpm: 120, releaseDate: 20260301, story: "靈感來自科技感與新潮舞曲的碰撞，講述賽博都市中夜馳的流光與悸動。", youtubeId: "jfKfPfyJRdk" },
+            { id: 2, title: "Valhalla's Epic Orchestral", genres: ["Epic", "Trailer Music"], bpm: 140, releaseDate: 20260115, story: "描述北歐勇士登陸瓦爾哈拉之境，交響樂與巨型鼓聲交織出壯烈的史詩征途。", youtubeId: "jfKfPfyJRdk" },
+            { id: 3, title: "Midnight Funk Odyssey", genres: ["Funk", "KPOP"], bpm: 115, releaseDate: 20251220, story: "沉浸於午夜霓虹燈下的放克律動，吉他與低音貝斯共舞出微醺的爵士夜色。", youtubeId: "jfKfPfyJRdk" },
+            { id: 4, title: "Dynasty of Dragon (東方賽博)", genres: ["Epic", "Oriental"], bpm: 95, releaseDate: 20260210, story: "東方古韻與現代 Trap 的賽博碰撞，古箏與琵琶傾訴著千年前的神話傳說。", youtubeId: "jfKfPfyJRdk" },
+            { id: 5, title: "Apocalypse Titan - Trailer Theme", genres: ["Epic", "Trailer Music"], bpm: 130, releaseDate: 20260315, story: "毀滅與重生交織的預告主題，重擊大鼓爆發出末日臨近的張力與絕望。", youtubeId: "jfKfPfyJRdk" },
+            { id: 6, title: "Neon Tokyo Cyberpunk Beat", genres: ["KPOP", "Epic"], bpm: 128, releaseDate: 20260320, story: "穿梭於東京霓虹街道的賽博朋克之夜，合成器音浪撕裂暗夜的平靜。", youtubeId: "CFGLoQIhmow" },
+            { id: 7, title: "Crimson Wushu Martial Arts", genres: ["Oriental", "Funk"], bpm: 110, releaseDate: 20260225, story: "行雲流水般的武俠意象，竹笛與三弦演繹出俠客仗劍走天涯的豪情。", youtubeId: "jfKfPfyJRdk" },
+            { id: 8, title: "Phantom Samurai Blade", genres: ["Oriental", "Trailer Music"], bpm: 135, releaseDate: 20260130, story: "肅殺的武士刀出鞘，太鼓與尺八勾勒出竹林決鬥的屏息一瞬。", youtubeId: "jfKfPfyJRdk" },
+            { id: 9, title: "Imperial Dragon Serenade", genres: ["Oriental", "Epic"], bpm: 100, releaseDate: 20260205, story: "帝王臨朝的宏大氣象，古琴與琵琶繪製出龍騰九霄的尊貴與大氣。", youtubeId: "jfKfPfyJRdk" },
+            { id: 10, title: "Starlight Galaxy Synthwave", genres: ["KPOP", "Funk"], bpm: 118, releaseDate: 20251115, story: "星空下的復古 Synthwave 冒險，帶領聽眾踏上 80 年代的銀河浪漫之旅。", youtubeId: "jfKfPfyJRdk" },
+            { id: 11, title: "Shadow Assassin Stealth Track", genres: ["Trailer Music", "Epic"], bpm: 145, releaseDate: 20260305, story: "潛入暗夜的刺客腳步，暗黑環境音效與緊張節奏營造出懸疑窒息感。", youtubeId: "jfKfPfyJRdk" }
+        ];
+
+        let currentGenre = 'All';
+        let currentSort = 'newest';
+        let currentPage = 1;
+        const itemsPerPage = 2;
+        let effectsActive = true;
+
+        class PanelRippleKoi {
+            constructor(canvas, config = {}) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.ripples = [];
+                this.fishList = [];
+                this.width = 0;
+                this.height = 0;
+                this.fishCount = config.count || 3;
+                this.customColors = config.colors || null;
+                this.initResizeObserver();
+                this.initFish();
+                this.bindEvents();
+                this.animate();
+            }
+            initResizeObserver() {
+                if (!this.canvas) return;
+                const updateSize = () => {
+                    const parent = this.canvas.parentElement;
+                    if (parent) {
+                        const rect = parent.getBoundingClientRect();
+                        this.width = this.canvas.width = rect.width || parent.clientWidth || 300;
+                        this.height = this.canvas.height = rect.height || parent.clientHeight || 300;
+                    }
+                };
+                updateSize();
+                const observer = new ResizeObserver(() => {
+                    updateSize();
+                });
+                observer.observe(this.canvas.parentElement);
+                window.addEventListener('resize', updateSize);
+                setTimeout(updateSize, 150);
+            }
+            initFish() {
+                for (let i = 0; i < this.fishCount; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 0.35 + Math.random() * 0.35;
+                    let color;
+                    if (this.customColors) {
+                        color = this.customColors[i % this.customColors.length];
+                    } else {
+                        color = Math.random() > 0.3 ? 'rgba(254, 240, 138, 0.95)' : 'rgba(239, 68, 68, 0.95)';
+                    }
+                    this.fishList.push({
+                        x: Math.random() * 200 + 50,
+                        y: Math.random() * 150 + 50,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        size: 22 + Math.random() * 6,
+                        angle: angle,
+                        color: color
+                    });
+                }
+            }
+            bindEvents() {
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.ripples.push({ x, y, r: 2, maxR: 140 + Math.random() * 40, alpha: 1.0 });
+                });
+            }
+            animate() {
+                if (effectsActive && this.canvas && this.width > 0 && this.height > 0) {
+                    this.ctx.clearRect(0, 0, this.width, this.height);
+
+                    if (Math.random() < 0.02 && this.ripples.length < 5) {
+                        this.ripples.push({
+                            x: Math.random() * this.width,
+                            y: Math.random() * this.height,
+                            r: 2,
+                            maxR: 90 + Math.random() * 40,
+                            alpha: 0.85
+                        });
+                    }
+
+                    for (let i = this.ripples.length - 1; i >= 0; i--) {
+                        let rip = this.ripples[i];
+                        rip.r += 0.8;
+                        rip.alpha *= 0.98;
+                        if (rip.alpha < 0.02 || rip.r > rip.maxR) {
+                            this.ripples.splice(i, 1);
+                            continue;
+                        }
+                        this.ctx.save();
+                        this.ctx.beginPath();
+                        this.ctx.arc(rip.x, rip.y, rip.r, 0, Math.PI * 2);
+                        this.ctx.strokeStyle = `rgba(45, 212, 191, ${rip.alpha})`;
+                        this.ctx.lineWidth = 2.0;
+                        this.ctx.stroke();
+                        this.ctx.restore();
+                    }
+
+                    this.fishList.forEach(fish => {
+                        fish.x += fish.vx;
+                        fish.y += fish.vy;
+
+                        const margin = 40;
+                        if (fish.x < margin) {
+                            fish.x = margin;
+                            fish.vx *= -1;
+                        } else if (fish.x > this.width - margin) {
+                            fish.x = this.width - margin;
+                            fish.vx *= -1;
+                        }
+
+                        if (fish.y < margin) {
+                            fish.y = margin;
+                            fish.vy *= -1;
+                        } else if (fish.y > this.height - margin) {
+                            fish.y = this.height - margin;
+                            fish.vy *= -1;
+                        }
+
+                        if (Math.random() < 0.015) {
+                            const currentSpeed = Math.sqrt(fish.vx * fish.vx + fish.vy * fish.vy);
+                            const newAngle = Math.atan2(fish.vy, fish.vx) + (Math.random() - 0.5) * 0.6;
+                            fish.vx = Math.cos(newAngle) * currentSpeed;
+                            fish.vy = Math.sin(newAngle) * currentSpeed;
+                        }
+
+                        fish.angle = Math.atan2(fish.vy, fish.vx);
+
+                        this.ctx.save();
+                        this.ctx.translate(fish.x, fish.y);
+                        this.ctx.rotate(fish.angle);
+
+                        this.ctx.beginPath();
+                        this.ctx.ellipse(0, 0, fish.size, fish.size * 0.48, 0, 0, Math.PI * 2);
+                        this.ctx.fillStyle = fish.color;
+                        this.ctx.shadowColor = '#2dd4bf';
+                        this.ctx.shadowBlur = 10;
+                        this.ctx.fill();
+
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(-fish.size, 0);
+                        this.ctx.lineTo(-fish.size - fish.size * 0.75, -fish.size * 0.5);
+                        this.ctx.lineTo(-fish.size - fish.size * 0.75, fish.size * 0.5);
+                        this.ctx.closePath();
+                        this.ctx.fillStyle = fish.color;
+                        this.ctx.fill();
+
+                        this.ctx.beginPath();
+                        this.ctx.arc(fish.size * 0.45, -fish.size * 0.18, fish.size * 0.15, 0, Math.PI * 2);
+                        this.ctx.fillStyle = '#110c08';
+                        this.ctx.fill();
+                        
+                        this.ctx.beginPath();
+                        this.ctx.arc(fish.size * 0.92, 0, fish.size * 0.08, -Math.PI / 2, Math.PI / 2);
+                        this.ctx.strokeStyle = '#110c08';
+                        this.ctx.lineWidth = 1.8;
+                        this.ctx.stroke();
+
+                        this.ctx.restore();
+                    });
+                }
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        function initStore() {
+            renderGenreFilters();
+            filterAndRender();
+            
+            new PanelRippleKoi(document.querySelector('#panel-left canvas'), { count: 3 });
+            new PanelRippleKoi(document.querySelector('#panel-top canvas'), { 
+                count: 2, 
+                colors: ['rgba(239, 68, 68, 0.95)', 'rgba(255, 255, 255, 0.95)'] 
+            });
+            new PanelRippleKoi(document.querySelector('#panel-elevator canvas'), { count: 5 });
+        }
+
+        function toggleEffects() {
+            effectsActive = !effectsActive;
+            const btn = document.getElementById('effect-toggle-btn');
+            if (effectsActive) {
+                document.body.classList.remove('disable-effects');
+                btn.innerHTML = "⚡ Effects: ON (特效開啟)";
+                btn.style.opacity = "1";
+            } else {
+                document.body.classList.add('disable-effects');
+                btn.innerHTML = "⚡ Effects: OFF (特效關閉)";
+                btn.style.opacity = "0.6";
+            }
+        }
+
+        function switchLeftPage(targetPage) {
+            const pageServices = document.getElementById('page-services');
+            const pageStyles = document.getElementById('page-styles');
+            const navContainer = document.getElementById('nav-tab-container');
+
+            if (targetPage === 'styles') {
+                pageServices.classList.add('hidden');
+                pageStyles.classList.remove('hidden');
+                navContainer.classList.add('hidden');
+            } else {
+                pageStyles.classList.add('hidden');
+                pageServices.classList.remove('hidden');
+                navContainer.classList.remove('hidden');
+            }
+        }
+
+        function renderGenreFilters() {
+            const container = document.getElementById('genre-filter-container');
+            const allGenres = beatsData.flatMap(b => b.genres);
+            const uniqueGenres = [...new Set(allGenres)].sort((a, b) => a.localeCompare(b));
+            const genres = ['All', ...uniqueGenres];
+
+            container.innerHTML = genres.map(genre => {
+                const displayName = genre === 'All' ? '📜 All (全部)' : `📜 ${genre}`;
+                const isActive = genre === currentGenre;
+                const activeClass = isActive ? 'active' : '';
+                return `
+                    <button onclick="handleGenreClick(this, '${genre}')" data-genre="${genre}" class="scroll-tag ${activeClass} !text-xs !py-1 !px-2.5">
+                        ${displayName}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function handleGenreClick(btn, genre) {
+            if (currentGenre === genre) return;
+            currentGenre = genre;
+            currentPage = 1;
+
+            btn.classList.add('scroll-rolling');
+            setTimeout(() => { btn.classList.remove('scroll-rolling'); }, 450);
+
+            document.querySelectorAll('.scroll-tag').forEach(tag => {
+                if(tag.dataset.genre === genre) tag.classList.add('active');
+                else tag.classList.remove('active');
+            });
+            triggerElevatorAction(() => { filterAndRender(); });
+        }
+
+        function handleSortClick(sortType) {
+            if (currentSort === sortType) return;
+            currentSort = sortType;
+            currentPage = 1;
+
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                if(btn.dataset.sort === sortType) {
+                    btn.className = "sort-btn px-3 py-1 rounded-lg text-xs font-bold transition border shadow bg-amber-600 text-white border-amber-500 cursor-pointer";
+                } else {
+                    btn.className = "sort-btn px-3 py-1 rounded-lg text-xs font-bold transition border shadow bg-amber-950/70 text-amber-200 hover:bg-amber-600 hover:text-white border border-amber-800/70 cursor-pointer";
+                }
+            });
+            triggerElevatorAction(() => { filterAndRender(); });
+        }
+
+        function triggerElevatorAction(actionCallback) {
+            if (!effectsActive) {
+                if (actionCallback) actionCallback();
+                return;
+            }
+            const wrapper = document.getElementById('elevator-doors-wrapper');
+            const mist = document.getElementById('mystical-mist');
+
+            wrapper.classList.remove('door-open');
+            mist.classList.add('active');
+
+            setTimeout(() => {
+                if (actionCallback) actionCallback();
+            }, 1400);
+
+            setTimeout(() => {
+                wrapper.classList.add('door-open');
+                mist.classList.remove('active');
+            }, 1800);
+        }
+
+        function filterAndRender() {
+            let result = [...beatsData];
+
+            if (currentGenre !== 'All') {
+                result = result.filter(b => b.genres.includes(currentGenre));
+            }
+
+            if (currentSort === 'newest') {
+                result.sort((a, b) => b.releaseDate - a.releaseDate);
+            } else if (currentSort === 'oldest') {
+                result.sort((a, b) => a.releaseDate - b.releaseDate);
+            }
+
+            renderPagination(result.length);
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedData = result.slice(startIndex, startIndex + itemsPerPage);
+
+            renderBeats(paginatedData);
+        }
+
+        function renderPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const pageNumbersContainer = document.getElementById('page-numbers');
+            let html = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const isActive = i === currentPage;
+                const btnClass = isActive 
+                    ? "px-2.5 py-0.5 rounded text-xs font-bold bg-amber-600 text-white border border-amber-500 shadow cursor-pointer" 
+                    : "px-2.5 py-0.5 rounded text-xs font-bold bg-amber-950/75 text-amber-200 hover:bg-amber-600 hover:text-white border border-amber-800 shadow transition cursor-pointer";
+                html += `<button onclick="goToPage(${i})" class="${btnClass}">${i}</button>`;
+            }
+            pageNumbersContainer.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            if (currentPage === page) return;
+            currentPage = page;
+            triggerElevatorAction(() => { filterAndRender(); });
+        }
+
+        function changePage(direction) {
+            let totalItems = beatsData.length;
+            if (currentGenre !== 'All') {
+                totalItems = beatsData.filter(b => b.genres.includes(currentGenre)).length;
+            }
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+                triggerElevatorAction(() => { filterAndRender(); });
+            } else if (direction === 'next' && currentPage < totalPages) {
+                currentPage++;
+                triggerElevatorAction(() => { filterAndRender(); });
+            }
+        }
+
+        function renderBeats(data) {
+            const grid = document.getElementById('beat-grid');
+            
+            if (data.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center text-amber-700 py-12">此條件下目前尚無典藏音軌</p>`;
+                return;
+            }
+
+            grid.innerHTML = data.map(beat => `
+                <div class="bg-black/65 border border-amber-900/50 rounded-2xl p-4 flex flex-col justify-between space-y-3 hover:border-amber-500/60 transition">
+                    
+                    <a href="https://www.youtube.com/watch?v=${beat.youtubeId}" target="_blank" class="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-amber-900/50 block group">
+                        <img src="https://img.youtube.com/vi/${beat.youtubeId}/hqdefault.jpg" alt="${beat.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/30 transition">
+                            <div class="w-10 h-10 bg-red-800 rounded-full flex items-center justify-center text-white shadow-lg shadow-red-900/50 text-xs font-bold border border-red-600 group-hover:scale-110 transition duration-300">
+                                ▶
+                            </div>
+                        </div>
+                        <span class="absolute bottom-2 right-2 bg-black/85 text-amber-400 text-[10px] px-2 py-0.5 rounded border border-amber-900 flex items-center gap-1">
+                            <span class="text-red-500">▶</span> YouTube 觀看
+                        </span>
+                    </a>
+
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap gap-1.5 items-center">
+                            ${beat.genres.map(g => `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800">${g}</span>`).join('')}
+                            <span class="ml-auto text-xs font-semibold text-amber-500">BPM: ${beat.bpm}</span>
+                        </div>
+                        
+                        <h3 class="font-bold text-base text-amber-100 leading-snug">${beat.title}</h3>
+                        
+                        <div class="bg-black/75 border border-amber-900/60 p-3 rounded-xl space-y-1 shadow-[inset_0_0_10px_rgba(212,143,49,0.1)]">
+                            <div class="font-bold border-b border-amber-900/50 pb-1 flex items-center justify-between text-xs text-amber-400">
+                                <span class="flex items-center gap-1.5"><span class="amber-stamp text-[10px] !w-5 !h-5">史</span> Track Story</span>
+                                <span class="text-[10px] text-amber-500/80">(樂曲故事)</span>
+                            </div>
+                            <p class="text-xs text-amber-100/90 leading-relaxed pt-0.5">${beat.story}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function backToBeatList() {
+            triggerElevatorAction(() => {
+                const listView = document.getElementById('beat-list-view');
+                const detailView = document.getElementById('beat-detail-view');
+
+                detailView.classList.add('hidden');
+                listView.classList.remove('hidden');
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initStore();
+            setTimeout(() => {
+                document.getElementById('elevator-doors-wrapper').classList.add('door-open');
+            }, 400);
+        });
+
+        // 💡 前端基礎防護：禁用右鍵選單與開發者工具快捷鍵
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (
+                e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+                (e.ctrlKey && e.key === 'u')
+            ) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
